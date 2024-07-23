@@ -1,9 +1,3 @@
-CREATE TABLE gas (
-	id			serial PRIMARY KEY,
-	vendor_code	varchar(32) NOT NULL,
-	gas_type	varchar(16) NOT NULL
-);
-
 CREATE TABLE remaining_gas (
 	remain_id integer CONSTRAINT PRIMARY KEY,
 	vendor_code	varchar(32) references gas(vendor_code) NOT NULL,
