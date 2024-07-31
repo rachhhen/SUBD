@@ -1,0 +1,102 @@
+INSERT INTO territory (cadastral_id, status, price, territory_location, average_cars)
+	VALUES (1, 'Owned', 100000, 'territory_location', 12)
+
+INSERT INTO station_owner (owner_id, owner_name, company_name, ownership_begin_date, objects_amount)
+	VALUES (1, 'name', 'company_name', '2024-08-12', '2' )
+
+INSERT INTO gas_station (gas_station_id, owner_id, cadastral_number, gas_station_type, station_location, pump_amount)
+	VALUES (1, 1, 1 , 'type', 'station_location', 6)
+
+INSERT INTO gas (id, vendor_code, gas_type)
+	VALUES (1, 1, 'ДТ-80')
+
+INSERT INTO cashier (cashier_id, gas_station_id, cashier_name, qualification, phone_number, work_begin_date)
+	VALUES (1, 1, 'name', 'qual', '+79111111111', '2024-03-28')
+
+INSERT INTO gas_income (income_contract_id, gas_station_id, gas_id, rate, provider, shipping_company, amount, delivery_date)
+	VALUES (1, 1, 1, 1, 'provider', 'shipping_company', 100, '2024-07-30')
+
+INSERT into remaining_gas (remain_id, gas_id, amount)
+VALUES (1, 1, 100)
+
+INSERT INTO client(client_id, client_name, phone_number, payment_info, birth_date)
+	VALUES (1, 'name', '+79999999999', 'info', '1985-04-10')
+
+INSERT INTO gas_consumption(gas_consumption_id, cashier_id, gas_id, client_id, total, total_price, liters_amount, purchase_time)
+	VALUES (1, 1, 1, 1, 20, 1200, 20, '2024-03-20 10:09:05')
+
+SELECT * FROM territory
+SELECT * FROM station_owner
+SELECT * FROM gas_station
+SELECT * FROM cashier
+SELECT * FROM gas
+select * FROM gas_income
+SELECT * FROM remaining_gas
+SELECT * FROM client
+SELECT * FROM gas_consumption
+
+SELECT gas_station.gas_station_id
+FROM gas_station
+WHERE gas_station.cadastral_number IN (
+	SELECT territory.cadastral_id
+	FROM territory
+	WHERE territory.price < 1000000::money
+)
+
+SELECT gas_station.gas_station_id
+FROM gas_station
+INNER JOIN territory
+	ON gas_station.cadastral_number=territory.cadastral_id
+WHERE territory.price < 1000000::money
+
+SELECT cashier.cashier_name
+FROM cashier
+WHERE cashier.gas_station_id IN (
+	SELECT gas_station.gas_station_id
+	FROM gas_station
+	WHERE gas_station.owner_id IN (
+		SELECT station_owner.owner_id
+		FROM station_owner
+		WHERE owner_name = 'name'
+	)
+)
+
+SELECT cashier.cashier_name
+FROM cashier
+INNER JOIN gas_station
+	ON cashier.gas_station_id=gas_station.gas_station_id
+INNER JOIN station_owner
+	ON gas_station.owner_id=station_owner.owner_id
+WHERE station_owner.owner_name = 'name'
+
+SELECT gas_income.provider
+FROM gas_income
+INNER JOIN gas
+	ON gas_income.gas_id=gas.id
+WHERE gas.gas_type='ДТ-80'
+
+SELECT territory.cadastral_id
+FROM territory
+INNER JOIN gas_station
+	ON territory.cadastral_id=gas_station.cadastral_number
+WHERE gas_station.pump_amount>=5
+
+SELECT cashier.cashier_name
+FROM cashier
+WHERE cashier.gas_station_id IN (
+	SELECT gas_station.gas_station_id
+	FROM gas_station
+	WHERE gas_station.owner_id IN (
+		SELECT station_owner.owner_id
+		FROM station_owner
+		WHERE station_owner.company_name = 'company_name'
+	)
+)
+
+SELECT remaining_gas.amount
+FROM remaining_gas
+INNER JOIN gas
+	ON remaining_gas.gas_id=gas.id
+INNER JOIN gas_income
+	ON gas.id=gas_income.gas_id
+WHERE gas_income.rate <= 55
